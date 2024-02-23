@@ -1,5 +1,5 @@
 # minbpe
-(Re) Implementation of Karpathy's minimal Byte Pair Encoder (minbpe)
+(Re)Implementation of Karpathy's minimal Byte Pair Encoding repo (minbpe)
 
 [Karpathy's Repo](https://github.com/karpathy/minbpe)
 
