@@ -1,5 +1,5 @@
 """
-Basic recipe for a tokenizer and BPE helper functions
+Base recipe for a tokenizer and BPE helper functions
 """
 from typing import List, Tuple, Dict, Any, Optional
 
@@ -84,8 +84,23 @@ class Tokenizer:
             for t1, t2 in self.merges:
                 fp.write(f"{t1} {t2}\n")
 
+        vocab_file = file_name + ".vocab"
+        idx_to_merges = {idx: pair for idx, pair in self.merges.items()}
+        with open(vocab_file, 'w', encoding="utf-8") as fp:
+            for idx, token in self.vocab.items():
+                if idx in idx_to_merges:
+                    p1, p2 = idx_to_merges[idx]
+                    fp.write(f"{p1} {p2} -> {token} {idx}\n")
+                else:
+                    fp.write(f"{token} {idx}\n")
 
+    @classmethod
+    def load(cls, model_file):
         
+
+
+
+
 
 
 
