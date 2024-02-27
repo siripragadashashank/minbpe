@@ -1,6 +1,7 @@
 """
 Base recipe for a tokenizer and BPE helper functions
 """
+from __future__ import annotations
 from typing import List, Tuple, Dict, Any, Optional
 
 
@@ -28,7 +29,7 @@ def merge(ids: List[Any], pair: Tuple[Any, Any], idx: int) -> List[Any]:
     merged = []
     i = 0
     while i < len(ids):
-        if i < len(ids) - 1 and ids[i] == pair[0] and ids[i+1] == pair[1]:
+        if i < len(ids) - 1 and ids[i] == pair[0] and ids[i + 1] == pair[1]:
             merged.append(idx)
             i += 2
         else:
@@ -41,6 +42,7 @@ class Tokenizer:
     """
     Base class for tokenization
     """
+
     def __init__(self):
         self.merges = {}  # (int, int) -> int
         self.pattern = ""  # regex pattern
@@ -81,8 +83,8 @@ class Tokenizer:
             for special, idx in self.special_tokens.items():
                 fp.write(f"{special} {idx}\n")
             # write the merged indices (idx1, idx2)
-            for t1, t2 in self.merges:
-                fp.write(f"{t1} {t2}\n")
+            for idx1, idx2 in self.merges:
+                fp.write(f"{idx1} {idx2}\n")
 
         vocab_file = file_name + ".vocab"
         idx_to_merges = {idx: pair for idx, pair in self.merges.items()}
@@ -94,14 +96,20 @@ class Tokenizer:
                 else:
                     fp.write(f"{token} {idx}\n")
 
-    @classmethod
-    def load(cls, model_file):
-        
+    def load(self, model_file: str):
+        # load only .vocab file
+        assert model_file.endswith(".model")
+        _index = 256
+        with open(model_file, 'w', encoding="utf-8") as fp:
+            # read first few lines sequentially for the pattern and special tokens
+            self.pattern = fp.readline().strip()
+            num_special_tokens = int(fp.readline().strip())
+            for _ in range(num_special_tokens):
+                special_token, idx = fp.readline().strip().split()
+                self.special_tokens[special_token] = int(idx)
+            for line in fp:
+                idx1, idx2 = line.split()
+                self.merges[(idx1, idx2)] = _index
+                _index += 1
 
-
-
-
-
-
-
-
+        self.vocab = self._build_vocab()
